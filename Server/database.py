@@ -30,7 +30,7 @@ class Track(Base):
     artist = Column(String(50), nullable=False)
     album = Column(String(50), nullable=False)
     release_year = Column(Date, nullable=False)
-    path = Column(String(50), nullable=False)
+    #path = Column(String(50), nullable=False)
     owner = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="tracks")
     playlists = relationship("Playlist", secondary=tracks_playlists, back_populates="tracks")
@@ -40,6 +40,7 @@ class Playlist(Base):
     __tablename__ = "playlists"
     id = Column(Integer, primary_key=True)
     title = Column(String(50), nullable=False)
+    date = Column(Date, nullable=False)
     owner = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="playlists")
     tracks = relationship("Track", secondary=tracks_playlists, back_populates="playlists")
