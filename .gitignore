@@ -1,3 +1,5 @@
 
 Server/.idea/*
 Client/.idea/*
+
+*.pyc

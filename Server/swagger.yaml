@@ -1,23 +1,439 @@
 swagger: "2.0"
 
 info:
-  title: "Hello World Example"
+  title: "Spotifree"
   version: "1.0"
+  description: "A REST API with Flask backend for managing music playlists."
+  contact:
+    name: "Fernando Rocha"
+    email: "fmrocha@student.dei.uc.pt"
 
 basePath: /v1.0
 
+produces:
+  - application/json;
+
 paths:
-  /hello:
-    get:
-      summary: Generate greeting
-      description: Generates a greeting message.
-      operationId: server.hello_world
+  /:
+    post:
+      summary: Login
+      description: Logins a user to the system
+      operationId: server.login
       produces:
-        - text/plain;
+        - application/json;
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: email
+          in: formData
+          description: email
+          type: string
+        - name: password
+          in: formData
+          description: password
+          type: string
       responses:
         200:
-          description: greeting response
-          schema:
-            type: string
-          examples:
-            "text/plain": "Hello John"
+          description: User successfully logged in
+
+  /logout:
+    get:
+      summary: Logs out a user
+      description: Logs out a user curently logged in
+      operationId: server.logout
+      responses:
+        200:
+          description: User successfully logged out
+
+
+  /tracks:
+    get:
+      summary: List every Track
+      description: Lists every Track available in the system
+      operationId: server.get_tracks
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Tracks retrieved
+
+  /tracks/{track_id}:
+    get:
+      summary: Show Track information
+      description: Shows information from track with ID track_id
+      operationId: server.get_track_info
+      parameters:
+        - $ref: '#/parameters/track_id'
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Track information retrieved
+
+  /users:
+    post:
+      summary: Register new user
+      description: Register a new user to the system
+      operationId: server.register
+      produces:
+        - application/json;
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          in: formData
+          description: User's name
+          type: string
+          required: true
+        - name: email
+          in: formData
+          description: User's email
+          type: string
+          required: true
+        - name: password
+          in: formData
+          description: User's chosen password
+          type: string
+          required: true
+      responses:
+        200:
+          description: User created
+
+
+  /users/{user_id}:
+    put:
+      summary: Update User Information
+      description: Updates the information about a User
+      operationId: server.update_user
+      produces:
+        - application/json;
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - name: name
+          in: formData
+          description: User's name
+          type: string
+        - name: email
+          in: formData
+          description: User's email
+          type: string
+        - name: password
+          in: formData
+          description: User's chosen password
+          type: string
+      responses:
+        200:
+          description: User Information Successfully updated
+        '403':
+          description: Forbidden Access
+
+  /users/{user_id}/tracks:
+    get:
+      summary: List Tracks from user
+      description: Lists every Track available in the system owned by a specific User
+      operationId: server.get_tracks_from_user
+      parameters:
+        - $ref: '#/parameters/user_id'
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Tracks from user successfully retrieved
+        '403':
+          description: Forbidden Access
+
+    post:
+      summary: Create a new Track
+      description: Creates a new Track to the system
+      operationId: server.create_track
+      produces:
+        - application/json;
+      consumes:
+        - multipart/form-data
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - name: title
+          in: formData
+          description: title
+          type: string
+          required: true
+        - name: artist
+          in: formData
+          description: artist
+          type: string
+          required: true
+        - name: album
+          in: formData
+          description: album
+          type: string
+          required: true
+        - name: year
+          in: formData
+          description: release year
+          type: string
+          required: true
+        - name: file
+          in: formData
+          description: The uploaded file
+          type: file
+          required: true
+      responses:
+        200:
+          description: Track successfully uploaded
+        '403':
+          description: Forbidden Access
+
+  /users/{user_id}/tracks/{track_id}:
+    put:
+      summary: Update Track information
+      description: Updates information from track with ID track_id
+      operationId: server.update_track
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/track_id'
+        - name: title
+          in: formData
+          description: title
+          type: string
+        - name: artist
+          in: formData
+          description: artist
+          type: string
+        - name: album
+          in: formData
+          description: album
+          type: string
+        - name: year
+          in: formData
+          description: release year
+          type: string
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Track successfully updated
+        '403':
+          description: Forbidden Access
+
+    delete:
+      summary: Delete Track
+      description: Deletes track with ID track_id
+      operationId: server.delete_track
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/track_id'
+      responses:
+        200:
+          description: Track successfully deleted
+        '403':
+          description: Forbidden Access
+
+
+  /users/{user_id}/playlists:
+    get:
+      summary: List Playlist from user
+      description: Lists every Playlist available in the system owned by a specific User
+      operationId: server.get_playlists_from_user
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - name: order
+          in: query
+          description: order
+          type: string
+        - name: attribute
+          in: query
+          description: attribute to order
+          type: string
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Playlists from User successfully retrieved
+        '403':
+          description: Forbidden Access
+
+    post:
+      summary: Create a new playlist
+      description: Creates a new playlist to the system
+      operationId: server.create_playlist
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - name: name
+          in: formData
+          description: name
+          type: string
+          required: true
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Playlist successfully created
+        '403':
+          description: Forbidden Access
+
+  /users/{user_id}/playlists/{playlist_id}:
+    get:
+      summary: Show Playlist information
+      description: Shows information from playlist with ID playlist_id
+      operationId: server.get_playlist_info
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/playlist_id'
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Playlist information retrieved
+        '403':
+          description: Forbidden Access
+
+    put:
+      summary: Update Playlist information
+      description: Updates information from playlist with ID playlist_id
+      operationId: server.update_playlist
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/playlist_id'
+        - name: name
+          in: formData
+          description: name
+          type: string
+          required: true
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Return playlist
+        '403':
+          description: Forbidden Access
+
+    delete:
+      summary: Delete Playlist
+      description: Deletes playlist with ID playlist_id
+      operationId: server.delete_playlist
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/playlist_id'
+      responses:
+        200:
+          description: Playlist successfully deleted
+        '403':
+          description: Forbidden Access
+
+  /users/{user_id}/playlists/{playlist_id}/tracks:
+    get:
+      summary: List tracks from a playlist from a user
+      description: Lists every Track associated with the Playlist with ID playlist_id from the User with ID user_id
+      operationId: server.get_tracks_from_playlist
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/playlist_id'
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Tracks from Playlist successfully retrieved
+        '403':
+          description: Forbidden Access
+    post:
+      summary: Add Track to a playlist
+      description: Add track with ID track_id to playlist with ID playlist_id
+      operationId: server.add_track_to_playlist
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/playlist_id'
+        - name: track_id
+          in: formData
+          description: track ID
+          type: integer
+          required: true
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Track added to Playlist
+        '403':
+          description: Forbidden Access
+
+
+  /users/{user_id}/playlists/{playlist_id}/tracks/{track_id}:
+    delete:
+      summary: Remove Track from Playlist
+      description: Removes track with ID track_id from playlist with ID playlist_id
+      operationId: server.remove_track_from_playlist
+      parameters:
+        - $ref: '#/parameters/user_id'
+        - $ref: '#/parameters/playlist_id'
+        - $ref: '#/parameters/track_id'
+      responses:
+        200:
+          description: Track removed from Playlist
+        '403':
+          description: Forbidden Access
+
+
+  /search:
+    get:
+      summary: Search Tracks
+      description: Searches and returns Tracks matching the selected criteria
+      operationId: server.search
+      parameters:
+        - name: title
+          in: query
+          description: track title
+          type: string
+        - name: artist
+          in: query
+          description: track artist
+          type: string
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: Return Tracks
+
+
+  /computefibonacci:
+    get:
+      summary: Computes Fibonacci
+      description: Computes Fibonacci number for argument n
+      operationId: server.httpfibonacci
+      parameters:
+        - name: n
+          in: query
+          description: N
+          type: integer
+      responses:
+        200:
+          description: Fibonacci number calculated
+
+
+parameters:
+  user_id:
+    name: user_id
+    description: User's Unique identifier
+    in: path
+    type: integer
+    required: true
+  track_id:
+    name: track_id
+    description: Track's Unique identifier
+    in: path
+    type: integer
+    required: true
+  playlist_id:
+    name: playlist_id
+    description: Playlist's Unique identifier
+    in: path
+    type: integer
+    required: true
